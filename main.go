@@ -5,6 +5,8 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"path/filepath"
+	"strings"
 )
 
 var indiceColunaExcluida int = -1
@@ -16,6 +18,30 @@ var diretorioDestino string = "destino/"
 
 func main() {
 
+	err := filepath.Walk("origem/",
+		func(path string, info os.FileInfo, err error) error {
+			if err != nil {
+				return err
+			}
+
+			if info.IsDir() {
+				return nil
+			} else {
+				fmt.Println(path)
+				create("destino/" + strings.TrimPrefix(path, diretorioOrigem))
+				fmt.Println("Chamando a rotina de removeColuna " + path)
+				removeColuna(path)
+				//d, _ := os.Create("destino/" + path)
+				//d.Write([]byte("teste"))
+				//d.Close()
+				return nil
+			}
+		})
+	if err != nil {
+		log.Println(err)
+	}
+
+	/*
 	// Abre o diretório onde os arquivos foram colocados (arquivos csv separados por ";")
 	f, err := os.Open(diretorioOrigem)
 	if err != nil {
@@ -34,7 +60,7 @@ func main() {
 		fmt.Println(file.Name())
 		removeColuna(file.Name())
 	}
-
+  */
 
 }
 
@@ -46,7 +72,7 @@ func removeColuna(arquivo string) {
 	registros = nil
 
 	// Abertura do arquivo de origem
-	f, err := os.Open(diretorioOrigem + arquivo)
+	f, err := os.Open(arquivo)
 
 	if err != nil {
 		log.Fatal("erro abrindo o arquivo")
@@ -92,7 +118,7 @@ func removeColuna(arquivo string) {
 
 
 	// Criar um arquivo novo com mesmo nome no diretório destino
-	d, err := os.Create(diretorioDestino + arquivo)
+	d, err := os.Create(diretorioDestino + strings.TrimPrefix(arquivo, diretorioOrigem))
 
 	if err != nil {
 
@@ -113,4 +139,9 @@ func removeColuna(arquivo string) {
 
 }
 
-
+func create(p string) (*os.File, error) {
+	if err := os.MkdirAll(filepath.Dir(p), 0770); err != nil {
+		return nil, err
+	}
+	return os.Create(p)
+}
