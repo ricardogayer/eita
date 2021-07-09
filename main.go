@@ -12,14 +12,14 @@ import (
 var indiceColunaExcluida int = -1
 var registro []string
 var registros [][]string
-var descricaoColunaExcluida string = "CREDICARD_NUMBER"
+// var descricaoColunaExcluida string = "CREDICARD_NUMBER"
+var descricaoColunaExcluida string = "DATA"
 var diretorioOrigem string = "origem/"
 var diretorioDestino string = "destino/"
 
 func main() {
 
-	err := filepath.Walk("origem/",
-		func(path string, info os.FileInfo, err error) error {
+	err := filepath.WalkDir("origem/", func(path string, info os.DirEntry, err error) error {
 			if err != nil {
 				return err
 			}
